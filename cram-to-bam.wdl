@@ -31,7 +31,7 @@ String cram_to_bam_mem_size
 String validate_sam_file_mem_size
 
 String? gotc_docker_override
-String gotc_docker = select_first([gotc_docker_override, "broadinstitute/genomes-in-the-cloud:2.3.1-1500064817"])
+String gotc_docker = select_first([gotc_docker_override, ""broadinstitute/genomes-in-the-cloud:2.3.1-1512499786""])
 
 
 #converts CRAM to SAM to BAM and makes BAI
