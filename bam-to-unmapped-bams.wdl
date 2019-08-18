@@ -144,7 +144,7 @@ task SortSam {
   String docker
 
   command {
-    ${gatk_path} --java-options "-Xmx4000m" \
+    ${gatk_path} --java-options "-Xmx5000m" \
     SortSam \
     --INPUT ${input_bam} \
     --OUTPUT ${sorted_bam_name} \
@@ -154,7 +154,7 @@ task SortSam {
   runtime {
     docker: docker
     disks: "local-disk " + disk_size + " HDD"
-    memory: "4500 MB"
+    memory: "6000 MB"
     preemptible: 3
   }
   output {
