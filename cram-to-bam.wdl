@@ -80,8 +80,8 @@ command {
 set -e
 set -o pipefail
 
-samtools view -h -T ${RefFasta} ${InputCram} |
-samtools view -b -o ${SampleName}.bam -
+samtools view -@ 2 -h -T ${RefFasta} ${InputCram} |
+samtools view -@ 2 -b -o ${SampleName}.bam -
 samtools index -b ${SampleName}.bam
 mv ${SampleName}.bam.bai ${SampleName}.bai
 }
@@ -94,7 +94,7 @@ mv ${SampleName}.bam.bai ${SampleName}.bai
 runtime {
     docker: docker_image
     memory: mem_size
-    cpu: "1"
+    cpu: "4"
     disks: "local-disk " + disk_size + " HDD"
 	}
     
