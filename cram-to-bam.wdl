@@ -92,7 +92,8 @@ mv ${SampleName}.bam.bai ${SampleName}.bai
 #disk_size should equal input size + output size + buffer
 
 runtime {
-    docker: docker_image
+    #docker: docker_image
+    docker: "halllab/samtools:1.9"
     memory: mem_size
     cpu: "4"
     disks: "local-disk " + disk_size + " HDD"
