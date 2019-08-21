@@ -92,8 +92,7 @@ mv ${SampleName}.bam.bai ${SampleName}.bai
 #disk_size should equal input size + output size + buffer
 
 runtime {
-    #docker: docker_image
-    docker: "mgibio/samtools:1.9"
+    docker: docker_image
     memory: mem_size
     cpu: "4"
     disks: "local-disk " + disk_size + " HDD"
