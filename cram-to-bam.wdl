@@ -93,7 +93,7 @@ mv ${SampleName}.bam.bai ${SampleName}.bai
 
 runtime {
     #docker: docker_image
-    docker: "halllab/samtools:1.9"
+    docker: "halllab/samtools:v1.9"
     memory: mem_size
     cpu: "4"
     disks: "local-disk " + disk_size + " HDD"
