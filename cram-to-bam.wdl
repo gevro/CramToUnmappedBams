@@ -77,11 +77,18 @@ String docker_image
 #Calls samtools view to do the conversion
 command {
 #Set -e and -o says if any command I run fails in this script, make sure to return a failure
+#Changed to check that the input is a Cram, otherwise if it is a Bam, it does not do a conversion,
+#or if it is neither, it returns an error.
 set -e
 set -o pipefail
 
-samtools view -@ 2 -h -T ${RefFasta} ${InputCram} |
-samtools view -@ 2 -b -o ${SampleName}.bam -
+if [[ "`basename ${InputCram} | sed 's/.*\.//'`" = "cram"  ]]; then
+	samtools view -@ 2 -h -T ${RefFasta} ${InputCram} | samtools view -@ 2 -b -o ${SampleName}.bam -
+elif [[ "`basename ${InputCram} | sed 's/.*\.//'`" = "bam" ]]; then
+	mv ${InputCram} ${SampleName}.bam
+else
+	exit 1
+fi
 samtools index -b ${SampleName}.bam
 mv ${SampleName}.bam.bai ${SampleName}.bai
 }
