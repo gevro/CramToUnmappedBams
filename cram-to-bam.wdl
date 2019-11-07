@@ -39,7 +39,7 @@ call CramToBamTask{
 	input:
 	disk_size = cram_to_bam_disk_size,
 	mem_size = cram_to_bam_mem_size,
-        docker_image = gotc_docker	
+    docker_image = gotc_docker	
 }
 
 #validates Bam
