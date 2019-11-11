@@ -89,6 +89,11 @@ elif [[ "`basename ${InputCram} | sed 's/.*\.//'`" = "bam" ]]; then
 else
 	exit 1
 fi
+
+#Change to correct sample name (since external sequencing will have a different sample name)
+samtools view -H ${SampleName}.bam  | sed "s/SM:[^\t]*/SM:${SampleName}/g" | samtools reheader - ${SampleName}.bam > ${SampleName}_SM.bam
+mv ${SampleName}_SM.bam ${SampleName}.bam
+
 samtools index -b ${SampleName}.bam
 mv ${SampleName}.bam.bai ${SampleName}.bai
 }
