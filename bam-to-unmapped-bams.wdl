@@ -64,7 +64,7 @@ workflow BamToUnmappedBams {
       input:
         input_bam = unmapped_bam,
         sorted_bam_name = output_basename + ".unmapped.bam",
-        disk_size = ceil(unmapped_bam_size * 6) + additional_disk,
+        disk_size = ceil(unmapped_bam_size * 10) + additional_disk,
         docker = gatk_image,
         gatk_path = path2gatk
     }
@@ -144,7 +144,7 @@ task SortSam {
   String docker
 
   command {
-    ${gatk_path} --java-options "-Xmx12000m" \
+    ${gatk_path} --java-options "-Xmx18000m" \
     SortSam \
     --INPUT ${input_bam} \
     --OUTPUT ${sorted_bam_name} \
@@ -154,7 +154,7 @@ task SortSam {
   runtime {
     docker: docker
     disks: "local-disk " + disk_size + " HDD"
-    memory: "13000 MB"
+    memory: "16000 MB"
     preemptible: 3
   }
   output {
