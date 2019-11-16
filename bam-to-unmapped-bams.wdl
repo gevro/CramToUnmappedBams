@@ -40,6 +40,11 @@ workflow BamToUnmappedBams {
   String? gatk_docker 
   String gatk_image = select_first([gatk_docker, "broadinstitute/gatk:latest"])
 
+  String R1_adapter
+  String R2_adapter
+
+  String sample_name
+
   call GenerateOutputMap {
     input:
       input_bam = input_bam,
@@ -68,10 +73,34 @@ workflow BamToUnmappedBams {
         docker = gatk_image,
         gatk_path = path2gatk
     }
+
+    call SamToFastq{
+      input:
+        input_bam = SortSam.sorted_bam
+    }
+
+    call CutAdapt{
+      input:
+        fastq_1 = SamToFastq.fastq_1,
+        fastq_2 = SamToFastq.fastq_2,
+        R1_adapter = R1_adapter,
+        R2_adapter = R2_adapter,
+        readgroup_name = output_basename
+    }
+
+    call PairedFastQsToUnmappedBAM{
+      input:
+        fastq_1 = CutAdapt.fastq1_trimmed,
+        fastq_2 = CutAdapt.fastq2_trimmed,
+        input_bam = SortSam.sorted_bam,
+        sample_name = sample_name,
+        readgroup_name = output_basename
+    }
   }
 
   output {
-    Array[File] output_bams = SortSam.sorted_bam
+    Array[File] output_bams = PairedFastQsToUnmappedBAM.output_bam
+    Array[File] CutAdapt_output = CutAdapt.CutAdapt_output
   }
 }
 
@@ -155,10 +184,94 @@ task SortSam {
     docker: docker
     disks: "local-disk " + disk_size + " HDD"
     memory: "16000 MB"
-    preemptible: 3
+    preemptible: 0
   }
   output {
     File sorted_bam = "${sorted_bam_name}"
   }
 }
 
+
+#Convert Sam to Fastq for Cutadapt processing
+task SamToFastq {
+  # Command parameters
+  File input_bam
+
+  command {
+    samtools fastq -@ 1 -n -1 ${input_bam}.R1.fastq.gz -2 ${input_bam}.R2.fastq.gz ${input_bam}
+  }
+  runtime {
+    docker: "halllab/samtools:v1.9"
+    memory: "4 GB"
+    cpu: "2"
+    disks: "local-disk "+ ceil(size(input_bam)*5) + " HDD"
+    preemptible: 0
+  }
+  output {
+    File fastq_1 = "${input_bam}.R1.fastq.gz"
+    File fastq_2 = "${input_bam}.R2.fastq.gz"
+  }
+}
+
+
+#Run CutAdapt to trim Illumina Adapaters
+task CutAdapt {
+  # Command parameters
+  File fastq_1
+  File fastq_2
+  String R1_adapter
+  String R2_adapter
+  String file_output1 = basename(fastq_1,".fastq.gz") + ".trimmed.fastq.gz"
+  String file_output2 = basename(fastq_2,".fastq.gz") + ".trimmed.fastq.gz"
+  String readgroup_name
+  String min_length_to_keep = "30"
+
+  command {
+    cutadapt -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
+  }
+  runtime {
+    docker: "kfdrc/cutadapt:latest"
+    memory: "4 GB"
+    cpu: "1"
+    disks: "local-disk "+ ceil(size(fastq_1)*5) + " HDD"
+    preemptible: 0
+  }
+  output {
+    File fastq1_trimmed = "${file_output1}"
+    File fastq2_trimmed = "${file_output2}"
+    File CutAdapt_output = "${readgroup_name}.cutadapt.out"
+  }
+}
+
+# Convert a pair of FASTQs to uBAM, and get readgroup, etc information from the original ubam prior to adapter trimming
+task PairedFastQsToUnmappedBAM {
+  # Command parameters
+  File fastq_1
+  File fastq_2
+  File input_bam
+  String readgroup_name
+  String sample_name
+
+  command {
+    /gatk/gatk --java-options "-Xmx3000m" \
+    FastqToSam \
+    --FASTQ ${fastq_1} \
+    --FASTQ2 ${fastq_2} \
+    --OUTPUT ${readgroup_name}.unmapped.bam \
+    --READ_GROUP_NAME `samtools view -H ${input_bam} | grep ^@RG | sed 's/.*ID://;s/\t.*//'` \
+    --SAMPLE_NAME ${sample_name} \
+    --LIBRARY_NAME `samtools view -H ${input_bam} | grep ^@RG | sed 's/.*LB://;s/\t.*//'` \
+    --PLATFORM `samtools view -H ${input_bam} | grep ^@RG | sed 's/.*PL://;s/\t.*//'` \
+    --SEQUENCING_CENTER `samtools view -H ${input_bam} | grep ^@RG | sed 's/.*CN://;s/\t.*//'`
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gatk/gatk:latest"
+    memory: "10 GB"
+    cpu: "1"
+    disks: "local-disk "+ ceil(size(fastq_1)*5) + " HDD"
+    preemptible: 0
+  }
+  output {
+    File output_bam = "${readgroup_name}.unmapped.bam"
+  }
+}
