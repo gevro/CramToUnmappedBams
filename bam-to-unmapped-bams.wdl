@@ -42,6 +42,7 @@ workflow BamToUnmappedBams {
 
   String R1_adapter
   String R2_adapter
+  Int trimstart
 
   String sample_name
 
@@ -85,6 +86,7 @@ workflow BamToUnmappedBams {
         fastq_2 = SamToFastq.fastq_2,
         R1_adapter = R1_adapter,
         R2_adapter = R2_adapter,
+        trimstart = trimstart,
         readgroup_name = output_basename
     }
 
@@ -221,13 +223,14 @@ task CutAdapt {
   File fastq_2
   String R1_adapter
   String R2_adapter
+  Int trimstart
   String file_output1 = basename(fastq_1,".fastq.gz") + ".trimmed.fastq.gz"
   String file_output2 = basename(fastq_2,".fastq.gz") + ".trimmed.fastq.gz"
   String readgroup_name
   String min_length_to_keep = "30"
 
   command {
-    cutadapt -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
+    cutadapt -u ${trimstart} -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
   }
   runtime {
     docker: "kfdrc/cutadapt:latest"
