@@ -230,7 +230,7 @@ task CutAdapt {
   String min_length_to_keep = "30"
 
   command {
-    cutadapt -u ${trimstart} -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
+    cutadapt -u ${trimstart} -U ${trimstart} -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
   }
   runtime {
     docker: "kfdrc/cutadapt:latest"
