@@ -208,7 +208,7 @@ task SamToFastq {
     docker: "halllab/samtools:v1.9"
     memory: "4 GB"
     cpu: "2"
-    disks: "local-disk "+ ceil(size(input_bam)*5) + " HDD"
+    disks: "local-disk "+ ceil(size(input_bam,"GB")*5) + " HDD"
     preemptible: 0
   }
   output {
@@ -241,7 +241,7 @@ task CutAdapt {
     docker: "kfdrc/cutadapt:latest"
     memory: "4 GB"
     cpu: "1"
-    disks: "local-disk "+ ceil(size(fastq_1)*5) + " HDD"
+    disks: "local-disk "+ ceil(size(fastq_1,"GB")*5) + " HDD"
     preemptible: 0
   }
   output {
@@ -276,7 +276,7 @@ task PairedFastQsToUnmappedBAM {
     docker: "us.gcr.io/broad-gatk/gatk:latest"
     memory: "10 GB"
     cpu: "1"
-    disks: "local-disk "+ ceil(size(fastq_1)*5) + " HDD"
+    disks: "local-disk "+ ceil(size(fastq_1,"GB")*5) + " HDD"
     preemptible: 0
   }
   output {
