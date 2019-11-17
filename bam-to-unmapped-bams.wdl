@@ -233,14 +233,14 @@ task CutAdapt {
   String min_length_to_keep = "30"
 
   command {
-    cutadapt -u ${trimstart} -U ${trimstart} -O ${minadapteroverlap} \
+    cutadapt -j 4 -u ${trimstart} -U ${trimstart} -O ${minadapteroverlap} \
     -m ${min_length_to_keep} -a ${R1_adapter} -A ${R2_adapter} \
     -o ${file_output1} -p ${file_output2} ${fastq_1} ${fastq_2} > ${readgroup_name}.cutadapt.out
   }
   runtime {
     docker: "kfdrc/cutadapt:latest"
     memory: "4 GB"
-    cpu: "1"
+    cpu: "4"
     disks: "local-disk "+ ceil(size(fastq_1,"GB")*5) + " HDD"
     preemptible: 0
   }
