@@ -29,6 +29,7 @@ Int cram_to_bam_disk_size
 Int validate_sam_file_disk_size
 String cram_to_bam_mem_size
 String validate_sam_file_mem_size
+String sample_name
 
 String? gotc_docker_override
 String gotc_docker = select_first([gotc_docker_override, "broadinstitute/genomes-in-the-cloud:2.3.1-1500064817"])
@@ -39,7 +40,8 @@ call CramToBamTask{
 	input:
 	disk_size = cram_to_bam_disk_size,
 	mem_size = cram_to_bam_mem_size,
-    docker_image = gotc_docker	
+    	docker_image = gotc_docker,
+	SampleName = sample_name
 }
 
 #validates Bam
