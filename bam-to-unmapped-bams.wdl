@@ -200,9 +200,10 @@ task SortSam {
 task SamToFastq {
   # Command parameters
   File input_bam
-
+  File output_basename = basename(input_bam)
+  
   command {
-    samtools fastq -@ 1 -n -1 ${input_bam}.R1.fastq.gz -2 ${input_bam}.R2.fastq.gz ${input_bam}
+    samtools fastq -@ 1 -n -1 ${output_basename}.R1.fastq.gz -2 ${output_basename}.R2.fastq.gz ${input_bam}
   }
   runtime {
     docker: "halllab/samtools:v1.9"
@@ -212,8 +213,8 @@ task SamToFastq {
     preemptible: 0
   }
   output {
-    File fastq_1 = "${input_bam}.R1.fastq.gz"
-    File fastq_2 = "${input_bam}.R2.fastq.gz"
+    File fastq_1 = "${output_basename}.R1.fastq.gz"
+    File fastq_2 = "${output_basename}.R2.fastq.gz"
   }
 }
 
