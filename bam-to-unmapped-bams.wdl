@@ -200,7 +200,7 @@ task SortSam {
 task SamToFastq {
   # Command parameters
   File input_bam
-  File output_basename = basename(input_bam)
+  String output_basename = basename(input_bam)
   
   command {
     samtools fastq -@ 1 -n -1 ${output_basename}.R1.fastq.gz -2 ${output_basename}.R2.fastq.gz ${input_bam}
