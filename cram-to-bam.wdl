@@ -34,14 +34,22 @@ String sample_name
 String? gotc_docker_override
 String gotc_docker = select_first([gotc_docker_override, "broadinstitute/genomes-in-the-cloud:2.3.1-1500064817"])
 
+File RefFasta
+File RefIndex
+File RefDict
+File InputCram
 
 #converts CRAM to SAM to BAM and makes BAI
 call CramToBamTask{
 	input:
 	disk_size = cram_to_bam_disk_size,
 	mem_size = cram_to_bam_mem_size,
+  docker_image = gotc_docker,
   SampleName = sample_name,
-  docker_image = gotc_docker	
+  RefFasta = RefFasta,
+  RefIndex = RefIndex,
+  RefDict = RefDict,
+  InputCram = InputCram
 }
 
 #validates Bam
