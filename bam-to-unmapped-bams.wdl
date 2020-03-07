@@ -277,7 +277,7 @@ task PairedFastQsToUnmappedBAM {
     docker: "us.gcr.io/broad-gatk/gatk:latest"
     memory: "10 GB"
     cpu: "1"
-    disks: "local-disk "+ ceil(size(fastq_1,"GB")*8) + " HDD"
+    disks: "local-disk "+ ceil(size(fastq_1,"GB")*25) + " HDD"
     preemptible: 0
   }
   output {
