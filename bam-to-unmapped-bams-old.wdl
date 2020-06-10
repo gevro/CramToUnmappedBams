@@ -84,7 +84,7 @@ task GenerateOutputMap {
   command {
     set -e
 
-    samtools view -H ${input_bam} | grep @RG | cut -f2 | sed s/ID:// > readgroups.txt
+    samtools view -H ${input_bam} | grep ^@RG | cut -f2 | sed s/ID:// > readgroups.txt
 
     echo -e "READ_GROUP_ID\tOUTPUT" > output_map.tsv
 
