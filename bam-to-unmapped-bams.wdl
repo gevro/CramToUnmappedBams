@@ -129,7 +129,7 @@ task GenerateOutputMap {
   runtime {
     docker: docker
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: "3"
+    preemptible: "0"
     memory: "1 GB"
   }
   output {
